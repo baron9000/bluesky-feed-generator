@@ -1,5 +1,5 @@
-from . import whats_alf
+from . import baronfeed
 
 algos = {
-    whats_alf.uri: whats_alf.handler
+    baronfeed.uri: baronfeed.handler
 }

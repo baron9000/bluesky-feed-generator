@@ -14,35 +14,40 @@ def operations_callback(ops: defaultdict) -> None:
     # for example, let's create our custom feed that will contain all posts that contains alf related text
 
     posts_to_create = []
-    for created_post in ops[models.ids.AppBskyFeedPost]['created']:
-        author = created_post['author']
-        record = created_post['record']
+    post_counter = 0
+    while post_counter < 10:
+        for created_post in ops[models.ids.AppBskyFeedPost]['created']:
+            author = created_post['author']
+            record = created_post['record']
 
-        # print all texts just as demo that data stream works
-        post_with_images = isinstance(record.embed, models.AppBskyEmbedImages.Main)
-        inlined_text = record.text.replace('\n', ' ')
-        logger.info(
-            f'NEW POST '
-            f'[CREATED_AT={record.created_at}]'
-            f'[AUTHOR={author}]'
-            f'[WITH_IMAGE={post_with_images}]'
-            f': {inlined_text}'
-        )
+            # print all texts just as demo that data stream works
+            post_with_images = isinstance(record.embed, models.AppBskyEmbedImages.Main)
+            inlined_text = record.text.replace('\n', ' ')
+            logger.info(
+                f'NEW POST '
+                f'[CREATED_AT={record.created_at}]'
+                f'[AUTHOR={author}]'
+                f'[WITH_IMAGE={post_with_images}]'
+                f': {inlined_text}'
+                f'-------------------------------\n'
+                f'full record: {record}\n'
+            )
 
-        # only alf-related posts
-        if 'alf' in record.text.lower():
-            reply_root = reply_parent = None
-            if record.reply:
-                reply_root = record.reply.root.uri
-                reply_parent = record.reply.parent.uri
+            # only alf-related posts
+            if 'alf' in record.text.lower():
+                reply_root = reply_parent = None
+                if record.reply:
+                    reply_root = record.reply.root.uri
+                    reply_parent = record.reply.parent.uri
 
-            post_dict = {
-                'uri': created_post['uri'],
-                'cid': created_post['cid'],
-                'reply_parent': reply_parent,
-                'reply_root': reply_root,
-            }
-            posts_to_create.append(post_dict)
+                post_dict = {
+                    'uri': created_post['uri'],
+                    'cid': created_post['cid'],
+                    'reply_parent': reply_parent,
+                    'reply_root': reply_root,
+                }
+                posts_to_create.append(post_dict)
+                post_counter += 1
 
     posts_to_delete = ops[models.ids.AppBskyFeedPost]['deleted']
     if posts_to_delete:
